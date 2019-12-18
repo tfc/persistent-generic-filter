@@ -60,7 +60,11 @@ in { system, compiler, flags, pkgs, hsPkgs, pkgconfPkgs, ... }:
     components = {
       exes = {
         "haskell-generics-persistent" = {
-          depends = [ (hsPkgs."base" or (buildDepError "base")) ];
+          depends = [
+            (hsPkgs."base" or (buildDepError "base"))
+            (hsPkgs."generics-eot" or (buildDepError "generics-eot"))
+            (hsPkgs."persistent" or (buildDepError "persistent"))
+            ];
           buildable = true;
           };
         };

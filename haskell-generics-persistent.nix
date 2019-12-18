@@ -64,6 +64,8 @@ in { system, compiler, flags, pkgs, hsPkgs, pkgconfPkgs, ... }:
             (hsPkgs."base" or (buildDepError "base"))
             (hsPkgs."generics-eot" or (buildDepError "generics-eot"))
             (hsPkgs."persistent" or (buildDepError "persistent"))
+            (hsPkgs."persistent-sqlite" or (buildDepError "persistent-sqlite"))
+            (hsPkgs."persistent-template" or (buildDepError "persistent-template"))
             ];
           buildable = true;
           };

@@ -7,11 +7,23 @@
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 import           Control.Monad.IO.Class  (liftIO)
+import qualified Database.Esqueleto      as E
 import           Database.Persist
 import           Database.Persist.Sqlite
 import           Database.Persist.TH
 import           Generics.Eot
+import           Data.Text               (Text)
+
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Person
@@ -23,6 +35,13 @@ BlogPost
     authorId PersonId
     deriving Show
 |]
+
+data FilterEntity where
+  FilterEntity :: PersistEntity record => EntityField record typ -> FilterEntity
+
+f :: [FilterEntity] -> [Text]
+f [] = []
+f (FilterEntity x:rest) = (unHaskellName $ fieldHaskell $ persistFieldDef x):f rest
 
 main :: IO ()
 main = runSqlite ":memory:" $ do

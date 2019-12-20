@@ -62,10 +62,12 @@ in { system, compiler, flags, pkgs, hsPkgs, pkgconfPkgs, ... }:
         "haskell-generics-persistent" = {
           depends = [
             (hsPkgs."base" or (buildDepError "base"))
+            (hsPkgs."esqueleto" or (buildDepError "esqueleto"))
             (hsPkgs."generics-eot" or (buildDepError "generics-eot"))
             (hsPkgs."persistent" or (buildDepError "persistent"))
             (hsPkgs."persistent-sqlite" or (buildDepError "persistent-sqlite"))
             (hsPkgs."persistent-template" or (buildDepError "persistent-template"))
+            (hsPkgs."text" or (buildDepError "text"))
             ];
           buildable = true;
           };

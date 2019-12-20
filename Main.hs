@@ -1,38 +1,32 @@
+{-# LANGUAGE DefaultSignatures          #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE EmptyDataDecls             #-}
 {-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MonoLocalBinds             #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeSynonymInstances       #-}
+{-# LANGUAGE UndecidableInstances       #-}
+
 import           Control.Monad.IO.Class  (liftIO)
-import qualified Database.Esqueleto      as E
-import           Database.Persist
-import           Database.Persist.Sqlite
+import qualified Data.Map.Strict         as Map
+import           Data.Text               (Text)
+import           Database.Esqueleto
+import           Database.Persist.Sqlite hiding ((==.))
 import           Database.Persist.TH
 import           Generics.Eot
-import           Data.Text               (Text)
-
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Person
     name String
-    age Int Maybe
-    deriving Show
-BlogPost
-    title String
-    authorId PersonId
+    age Int
     deriving Show
 |]
 
@@ -47,17 +41,14 @@ main :: IO ()
 main = runSqlite ":memory:" $ do
     runMigration migrateAll
 
-    johnId <- insert $ Person "John Doe" $ Just 35
-    janeId <- insert $ Person "Jane Doe" Nothing
+    insert $ Person "john" 10
+    insert $ Person "tom"  10
+    insert $ Person "jane" 20
+    insert $ Person "john" 30
 
-    insert $ BlogPost "My fr1st p0st" johnId
-    insert $ BlogPost "One more for good measure" johnId
+    johns <- select . from $ \p -> do
+        where_ (p ^. PersonName ==. val "john")
+        return p
 
-    oneJohnPost <- selectList [BlogPostAuthorId ==. johnId] [LimitTo 1]
-    liftIO $ print (oneJohnPost :: [Entity BlogPost])
-
-    john <- get johnId
-    liftIO $ print (john :: Maybe Person)
-
-    delete janeId
-    deleteWhere [BlogPostAuthorId ==. johnId]
+    liftIO $ mapM_ (print . entityVal) johns
+    return ()

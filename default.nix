@@ -3,7 +3,6 @@ let
   nixpkgs = import (src + "/nixpkgs") (import src);
   haskell = nixpkgs.haskell-nix;
 
-  # Instantiate a package set using the generated file.
   pkgSet = haskell.mkStackPkgSet {
     stack-pkgs = import ./pkgs.nix;
     modules = [];

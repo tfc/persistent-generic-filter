@@ -2,7 +2,7 @@
   extras = hackage:
     {
       packages = {
-        haskell-generics-persistent = ./haskell-generics-persistent.nix;
+        persistent-generic-filter = ./persistent-generic-filter.nix;
         };
       };
   resolver = "lts-14.17";

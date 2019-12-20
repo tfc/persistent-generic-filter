@@ -1,4 +1,4 @@
-# Revision history for haskell-generics-persistent
+# Revision history for persistent-generic-filter
 
 ## 0.1.0.0 -- YYYY-mm-dd
 

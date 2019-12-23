@@ -13,6 +13,7 @@ executable persistent-generic-filter
   build-depends:       base >=4.12 && <4.13
                      , containers
                      , esqueleto
+                     , parsec
                      , persistent
                      , persistent-sqlite
                      , persistent-template

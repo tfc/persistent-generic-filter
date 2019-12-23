@@ -11,6 +11,7 @@ module FilterQueryLib (
     ) where
 
 import           Control.Monad          (liftM2)
+import           Data.Functor           (($>))
 import           Data.Text              (Text)
 import qualified Data.Text              as Text
 import           Database.Esqueleto
@@ -55,14 +56,14 @@ parserForEntity :: FilterEntity a -> Parser (SqlPredicate a)
 parserForEntity (FilterEntity e) = do
     string $ persistFieldToString e
     spaces
-    op <- choice $ map (\(str, op) -> string str *> pure op) $ predicateOps e
+    op <- choice $ map (\(str, op) -> string str $> op) $ predicateOps e
     spaces
     value <- valueParser e
-    return (\p -> (p ^. e) `op` (val value))
+    return (\p -> (p ^. e) `op` val value)
 
 dbConjunctionOp :: Parser (SqlPredicate a -> SqlPredicate a -> SqlPredicate a)
-dbConjunctionOp = spaces *> ((f "and" (&&.) <|> f "or" (||.)))
-    where f token operator = string token *> pure (liftM2 operator)
+dbConjunctionOp = spaces *> (f "and" (&&.) <|> f "or" (||.))
+    where f token operator = string token $> liftM2 operator
 
 dbExprParser filters = dbFactorParser filters `chainl1` dbConjunctionOp
 dbFactorParser filters = spaces *> choice [

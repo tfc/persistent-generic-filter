@@ -38,7 +38,7 @@ main = runSqlite ":memory:" $ do
     insert $ Person "jane" 20
     insert $ Person "john" 30
 
-    allPeople <- select . from $ \person -> do
+    allPeople <- select . from $ \person ->
         return (person :: SqlExpr (Entity Person))
 
     liftIO $ do
@@ -51,8 +51,8 @@ main = runSqlite ":memory:" $ do
 
         putStrLn "\nThe following fields and operators are available:"
         forM_ (map listFields filters) $ \(fieldName, operators) ->
-            let ops = intercalate " " operators in
-            putStrLn $ "Field \"" ++ fieldName ++ "\", operators: " ++ ops
+            putStrLn $ "Field \"" ++ fieldName ++ "\", operators: "
+                ++ unwords operators
 
     replLoop
 

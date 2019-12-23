@@ -6,7 +6,8 @@
 module FilterQueryLib (
     EntityField(..),
     FilterEntity(..),
-    parseUserQuery
+    parseUserQuery,
+    listFields
     ) where
 
 import           Control.Monad          (liftM2)
@@ -47,9 +48,12 @@ instance ParseableFieldEntity a [Char] where
 -- - provide regex op for postgres
 -- - provide Maybe X case for optional fields
 
+persistFieldToString :: PersistEntity record => EntityField record typ -> String
+persistFieldToString = Text.unpack . unHaskellName . fieldHaskell . persistFieldDef
+
 parserForEntity :: FilterEntity a -> Parser (SqlPredicate a)
 parserForEntity (FilterEntity e) = do
-    string $ Text.unpack $ unHaskellName $ fieldHaskell $ persistFieldDef e
+    string $ persistFieldToString e
     spaces
     op <- choice $ map (\(str, op) -> string str *> pure op) $ predicateOps e
     spaces
@@ -71,3 +75,6 @@ dbFactorParser filters = spaces *> choice [
 --  - provide some better parser for <= and >= cases etc.
 
 parseUserQuery filters = runParser (dbExprParser filters) () "bla"
+
+listFields :: FilterEntity a -> (String, [String])
+listFields (FilterEntity e) = (persistFieldToString e, map fst $ predicateOps e)

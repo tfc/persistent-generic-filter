@@ -6,7 +6,9 @@
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
 
+import           Control.Monad           (forM_)
 import           Control.Monad.IO.Class  (liftIO)
+import           Data.List               (intercalate)
 import           Database.Esqueleto
 import           Database.Persist.Sqlite
 import           Database.Persist.TH
@@ -24,7 +26,8 @@ Person
 -- This is what the developer defines in the source to enable
 -- specific columns in the DB table for filtering
 
-userQuery = parseUserQuery [FilterEntity PersonAge, FilterEntity PersonName]
+filters = [FilterEntity PersonAge, FilterEntity PersonName]
+userQuery = parseUserQuery filters
 
 main :: IO ()
 main = runSqlite ":memory:" $ do
@@ -45,6 +48,11 @@ main = runSqlite ":memory:" $ do
         putStrLn "\nPlease enter a query. Examples:"
         putStrLn "    age > 12 and name = john"
         putStrLn "    name = jane or (name = john and age > 10)"
+
+        putStrLn "\nThe following fields and operators are available:"
+        forM_ (map listFields filters) $ \(fieldName, operators) ->
+            let ops = intercalate " " operators in
+            putStrLn $ "Field \"" ++ fieldName ++ "\", operators: " ++ ops
 
     replLoop
 
